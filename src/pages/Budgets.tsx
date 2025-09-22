@@ -170,7 +170,7 @@ const Budgets = () => {
             <p className="text-muted-foreground">Set spending limits and track your progress</p>
           </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
