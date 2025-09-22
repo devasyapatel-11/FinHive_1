@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
   BarChart3,
   Wallet,
@@ -20,10 +20,15 @@ import { useAuth } from '@/hooks/useAuth';
 const Sidebar = () => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await signOut();
     navigate('/auth');
+  };
+
+  const isActiveRoute = (path: string) => {
+    return location.pathname === path;
   };
 
   return (
@@ -35,31 +40,31 @@ const Sidebar = () => {
       <div className="px-3 py-4">
         <p className="text-xs font-medium text-finhive-muted mb-2 px-3">General</p>
         <nav className="space-y-1">
-          <Link to="/dashboard" className="nav-item active">
+          <Link to="/dashboard" className={`nav-item ${isActiveRoute('/dashboard') ? 'active' : ''}`}>
             <LayoutDashboard className="w-5 h-5" />
             <span>Dashboard</span>
           </Link>
-          <Link to="/transactions" className="nav-item">
+          <Link to="/transactions" className={`nav-item ${isActiveRoute('/transactions') ? 'active' : ''}`}>
             <Receipt className="w-5 h-5" />
             <span>Transactions</span>
           </Link>
-          <Link to="/receipts" className="nav-item">
+          <Link to="/receipts" className={`nav-item ${isActiveRoute('/receipts') ? 'active' : ''}`}>
             <Receipt className="w-5 h-5" />
             <span>Receipts</span>
           </Link>
-          <Link to="/analytics" className="nav-item">
+          <Link to="/analytics" className={`nav-item ${isActiveRoute('/analytics') ? 'active' : ''}`}>
             <BarChart3 className="w-5 h-5" />
             <span>Analytics</span>
           </Link>
-          <Link to="/insights" className="nav-item">
+          <Link to="/insights" className={`nav-item ${isActiveRoute('/insights') ? 'active' : ''}`}>
             <Lightbulb className="w-5 h-5" />
             <span>Insights</span>
           </Link>
-          <Link to="/budgets" className="nav-item">
+          <Link to="/budgets" className={`nav-item ${isActiveRoute('/budgets') ? 'active' : ''}`}>
             <Target className="w-5 h-5" />
             <span>Budgets</span>
           </Link>
-          <Link to="/wallet" className="nav-item">
+          <Link to="/wallet" className={`nav-item ${isActiveRoute('/wallet') ? 'active' : ''}`}>
             <Wallet className="w-5 h-5" />
             <span>My Wallet</span>
           </Link>
@@ -69,15 +74,15 @@ const Sidebar = () => {
       <div className="px-3 py-4">
         <p className="text-xs font-medium text-finhive-muted mb-2 px-3">College Tools</p>
         <nav className="space-y-1">
-          <Link to="/split-bills" className="nav-item">
+          <Link to="/split-bills" className={`nav-item ${isActiveRoute('/split-bills') ? 'active' : ''}`}>
             <Receipt className="w-5 h-5" />
             <span>Split Bills</span>
           </Link>
-          <Link to="/shared-wallets" className="nav-item">
+          <Link to="/shared-wallets" className={`nav-item ${isActiveRoute('/shared-wallets') ? 'active' : ''}`}>
             <Wallet className="w-5 h-5" />
             <span>Shared Wallets</span>
           </Link>
-          <Link to="/scan-receipts" className="nav-item">
+          <Link to="/scan-receipts" className={`nav-item ${isActiveRoute('/scan-receipts') ? 'active' : ''}`}>
             <Receipt className="w-5 h-5" />
             <span>Scan Receipts</span>
           </Link>
@@ -87,12 +92,12 @@ const Sidebar = () => {
       <div className="px-3 py-4">
         <p className="text-xs font-medium text-finhive-muted mb-2 px-3">Other</p>
         <nav className="space-y-1">
-          <Link to="/chat" className="nav-item">
+          <Link to="/chat" className={`nav-item ${isActiveRoute('/chat') ? 'active' : ''}`}>
             <MessagesSquare className="w-5 h-5" />
-            <span>Chat</span>
+            <span>AI Assistant</span>
             <span className="ml-auto bg-finhive-primary text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">3</span>
           </Link>
-          <Link to="/contacts" className="nav-item">
+          <Link to="/contacts" className={`nav-item ${isActiveRoute('/contacts') ? 'active' : ''}`}>
             <Users className="w-5 h-5" />
             <span>Contacts</span>
           </Link>
@@ -101,11 +106,11 @@ const Sidebar = () => {
 
       <div className="px-3 py-4 mt-auto">
         <nav className="space-y-1">
-          <Link to="/help" className="nav-item">
+          <Link to="/help" className={`nav-item ${isActiveRoute('/help') ? 'active' : ''}`}>
             <HelpCircle className="w-5 h-5" />
             <span>Help Center</span>
           </Link>
-          <Link to="/settings" className="nav-item">
+          <Link to="/settings" className={`nav-item ${isActiveRoute('/settings') ? 'active' : ''}`}>
             <Settings className="w-5 h-5" />
             <span>Settings</span>
           </Link>
