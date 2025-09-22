@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PageTemplate from './PageTemplate';
 import { useAuth } from "@/hooks/useAuth";
 import { getBudgets, saveBudget, getBudgetStatus, deleteBudget, formatIndianCurrency } from "@/services/financeService";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -162,12 +163,12 @@ const Budgets = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Budgets</h1>
-          <p className="text-muted-foreground">Set spending limits and track your progress</p>
-        </div>
+    <PageTemplate title="Budgets">
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-muted-foreground">Set spending limits and track your progress</p>
+          </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -334,7 +335,8 @@ const Budgets = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+      </div>
+    </PageTemplate>
   );
 };
 

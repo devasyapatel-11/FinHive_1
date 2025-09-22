@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PageTemplate from './PageTemplate';
 import { useAuth } from "@/hooks/useAuth";
 import { insightsEngine, FinancialInsight, FinancialPersona } from "@/services/insightsService";
 import { formatIndianCurrency } from "@/services/financeService";
@@ -117,22 +118,22 @@ const Insights = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Financial Insights</h1>
-          <p className="text-muted-foreground">Personalized analysis and recommendations for your finances</p>
+    <PageTemplate title="Financial Insights">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-muted-foreground">Personalized analysis and recommendations for your finances</p>
+          </div>
+          <Button
+            onClick={loadInsights}
+            disabled={isRefreshing}
+            variant="outline"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh Insights
+          </Button>
         </div>
-        <Button
-          onClick={loadInsights}
-          disabled={isRefreshing}
-          variant="outline"
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-          Refresh Insights
-        </Button>
-      </div>
 
       {/* Quick Stats */}
       {quickStats && (
@@ -311,7 +312,7 @@ const Insights = () => {
           </div>
         )}
       </div>
-    </div>
+    </PageTemplate>
   );
 };
 
