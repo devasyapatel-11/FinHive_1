@@ -63,6 +63,22 @@ CREATE TABLE IF NOT EXISTS currency_holdings (
   UNIQUE(user_id, code)
 );
 
+-- Budgets for spending limits and tracking
+CREATE TABLE IF NOT EXISTS budgets (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  category TEXT NOT NULL,
+  monthly_limit DECIMAL(12,2) NOT NULL,
+  spent_amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+  period TEXT NOT NULL DEFAULT 'monthly', -- 'monthly', 'weekly', 'yearly'
+  start_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  end_date DATE,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, category, period)
+);
+
 -- Contacts for quick transactions
 CREATE TABLE IF NOT EXISTS contacts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -78,6 +94,7 @@ ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE monthly_summaries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE savings_goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE currency_holdings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE budgets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contacts ENABLE ROW LEVEL SECURITY;
 
 -- Create policies to ensure users can only access their own data
@@ -86,4 +103,5 @@ CREATE POLICY transactions_policy ON transactions FOR ALL USING (auth.uid() = us
 CREATE POLICY monthly_summaries_policy ON monthly_summaries FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY savings_goals_policy ON savings_goals FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY currency_holdings_policy ON currency_holdings FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY budgets_policy ON budgets FOR ALL USING (auth.uid() = user_id);
 CREATE POLICY contacts_policy ON contacts FOR ALL USING (auth.uid() = user_id);

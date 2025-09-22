@@ -1,16 +1,18 @@
 
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  BarChart3, 
-  Wallet, 
-  MessagesSquare, 
-  Users, 
-  LayoutDashboard, 
-  Receipt, 
-  HelpCircle, 
-  Settings, 
-  LogOut 
+import {
+  BarChart3,
+  Wallet,
+  MessagesSquare,
+  Users,
+  LayoutDashboard,
+  Receipt,
+  HelpCircle,
+  Settings,
+  LogOut,
+  Target,
+  Lightbulb
 } from 'lucide-react';
 import FinHiveLogo from './FinHiveLogo';
 import { useAuth } from '@/hooks/useAuth';
@@ -48,6 +50,14 @@ const Sidebar = () => {
           <Link to="/analytics" className="nav-item">
             <BarChart3 className="w-5 h-5" />
             <span>Analytics</span>
+          </Link>
+          <Link to="/insights" className="nav-item">
+            <Lightbulb className="w-5 h-5" />
+            <span>Insights</span>
+          </Link>
+          <Link to="/budgets" className="nav-item">
+            <Target className="w-5 h-5" />
+            <span>Budgets</span>
           </Link>
           <Link to="/wallet" className="nav-item">
             <Wallet className="w-5 h-5" />

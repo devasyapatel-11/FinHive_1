@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
+import { autoCategorizationEngine } from './autoCategorizationService';
 
 // Type definitions for our service
 type Account = Database['public']['Tables']['accounts']['Row'];
@@ -7,6 +8,7 @@ type Transaction = Database['public']['Tables']['transactions']['Row'];
 type MonthlySummary = Database['public']['Tables']['monthly_summaries']['Row'];
 type SavingsGoal = Database['public']['Tables']['savings_goals']['Row'];
 type CurrencyHolding = Database['public']['Tables']['currency_holdings']['Row'];
+type Budget = Database['public']['Tables']['budgets']['Row'];
 type Contact = Database['public']['Tables']['contacts']['Row'];
 
 // Format currency in Indian Rupees
@@ -627,18 +629,40 @@ export const addTransaction = async (
     type: string;
     amount: number;
     description: string;
-    category: string;
-    date: string;
+    category?: string; // Made optional - will auto-categorize if not provided
+    date?: string;
   }
 ): Promise<any> => {
   try {
+    let category = transaction.category || 'Uncategorized';
+
+    // Auto-categorize if no category provided
+    if (!transaction.category && transaction.description) {
+      try {
+        const categorization = await autoCategorizationEngine.categorizeTransaction({
+          id: 'temp',
+          description: transaction.description,
+          amount: transaction.amount,
+          type: transaction.type as 'income' | 'expense'
+        });
+
+        if (categorization.confidence > 50) { // Only use if confidence is decent
+          category = categorization.category;
+          console.log(`Auto-categorized "${transaction.description}" as "${category}" (${categorization.confidence}% confidence)`);
+        }
+      } catch (error) {
+        console.error('Auto-categorization failed:', error);
+        // Continue with default category
+      }
+    }
+
     // Create a new transaction object with all required fields
     const newTransaction = {
       id: `trans_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
       user_id: userId,
       amount: Number(transaction.amount),
       type: transaction.type,
-      category: transaction.category || 'Uncategorized',
+      category: category,
       description: transaction.description || '',
       date: transaction.date || new Date().toISOString().split('T')[0],
       created_at: new Date().toISOString()
@@ -862,6 +886,142 @@ export const getContacts = async (userId: string): Promise<Contact[]> => {
 
   if (error) throw error;
   return data || [];
+};
+
+// BUDGETING FUNCTIONS
+
+// Get user budgets
+export const getBudgets = async (userId: string): Promise<Budget[]> => {
+  const { data, error } = await supabase
+    .from('budgets')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('is_active', true)
+    .order('category');
+
+  if (error) throw error;
+  return data || [];
+};
+
+// Create or update a budget
+export const saveBudget = async (
+  userId: string,
+  budget: {
+    category: string;
+    monthly_limit: number;
+    period?: string;
+  }
+): Promise<Budget> => {
+  // Check if budget already exists
+  const { data: existingBudget, error: fetchError } = await supabase
+    .from('budgets')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('category', budget.category)
+    .eq('period', budget.period || 'monthly')
+    .single();
+
+  if (existingBudget) {
+    // Update existing budget
+    const { data, error } = await supabase
+      .from('budgets')
+      .update({
+        monthly_limit: budget.monthly_limit,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', existingBudget.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  } else {
+    // Create new budget
+    const { data, error } = await supabase
+      .from('budgets')
+      .insert([{
+        user_id: userId,
+        category: budget.category,
+        monthly_limit: budget.monthly_limit,
+        period: budget.period || 'monthly',
+        spent_amount: 0,
+        is_active: true
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+};
+
+// Update spent amount for a budget category
+export const updateBudgetSpentAmount = async (
+  userId: string,
+  category: string,
+  spentAmount: number
+): Promise<void> => {
+  const { error } = await supabase
+    .from('budgets')
+    .update({
+      spent_amount: spentAmount,
+      updated_at: new Date().toISOString()
+    })
+    .eq('user_id', userId)
+    .eq('category', category)
+    .eq('period', 'monthly')
+    .eq('is_active', true);
+
+  if (error) throw error;
+};
+
+// Get budget status with spending analysis
+export const getBudgetStatus = async (userId: string): Promise<Array<{
+  category: string;
+  limit: number;
+  spent: number;
+  remaining: number;
+  percentage: number;
+  status: 'good' | 'warning' | 'danger';
+}>> => {
+  const budgets = await getBudgets(userId);
+  const expenseBreakdown = await getExpenseBreakdown(userId);
+
+  return budgets.map(budget => {
+    const spent = expenseBreakdown.find(exp => exp.name === budget.category)?.value || 0;
+    const remaining = budget.monthly_limit - spent;
+    const percentage = budget.monthly_limit > 0 ? (spent / budget.monthly_limit) * 100 : 0;
+
+    let status: 'good' | 'warning' | 'danger';
+    if (percentage >= 90) {
+      status = 'danger';
+    } else if (percentage >= 75) {
+      status = 'warning';
+    } else {
+      status = 'good';
+    }
+
+    return {
+      category: budget.category,
+      limit: budget.monthly_limit,
+      spent,
+      remaining: Math.max(0, remaining),
+      percentage: Math.min(100, percentage),
+      status
+    };
+  });
+};
+
+// Delete a budget
+export const deleteBudget = async (budgetId: string, userId: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('budgets')
+    .delete()
+    .eq('id', budgetId)
+    .eq('user_id', userId);
+
+  if (error) throw error;
+  return true;
 };
 
 // Calculate total balance from all accounts - using localStorage for reliability

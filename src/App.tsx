@@ -18,6 +18,8 @@ import Receipts from "./pages/Receipts";
 import SplitBills from "./pages/SplitBills";
 import SharedWallets from "./pages/SharedWallets";
 import ScanReceipts from "./pages/ScanReceipts";
+import Budgets from "./pages/Budgets";
+import Insights from "./pages/Insights";
 import Chat from "./pages/Chat";
 import Contacts from "./pages/Contacts";
 import Help from "./pages/Help";
@@ -100,21 +102,37 @@ const App = () => {
                 </PrivateRoute>
               } 
             />
-            <Route 
-              path="/scan-receipts" 
+            <Route
+              path="/scan-receipts"
               element={
                 <PrivateRoute>
                   <ScanReceipts />
                 </PrivateRoute>
-              } 
+              }
             />
-            <Route 
-              path="/chat" 
+            <Route
+              path="/budgets"
+              element={
+                <PrivateRoute>
+                  <Budgets />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/insights"
+              element={
+                <PrivateRoute>
+                  <Insights />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/chat"
               element={
                 <PrivateRoute>
                   <Chat />
                 </PrivateRoute>
-              } 
+              }
             />
             <Route 
               path="/contacts" 

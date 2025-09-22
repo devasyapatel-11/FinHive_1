@@ -248,6 +248,55 @@ export type Database = {
           }
         ]
       },
+      budgets: {
+        Row: {
+          id: string
+          user_id: string
+          category: string
+          monthly_limit: number
+          spent_amount: number
+          period: string
+          start_date: string
+          end_date: string | null
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          category: string
+          monthly_limit: number
+          spent_amount?: number
+          period?: string
+          start_date?: string
+          end_date?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          category?: string
+          monthly_limit?: number
+          spent_amount?: number
+          period?: string
+          start_date?: string
+          end_date?: string | null
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "budgets_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      },
       contacts: {
         Row: {
           id: string
