@@ -575,20 +575,18 @@ export const getRecentTransactions = async (userId: string, limit = 5): Promise<
     // First try to get from localStorage
     const transactionsJSON = localStorage.getItem('finhive_transactions') || '[]';
     const allTransactions = JSON.parse(transactionsJSON);
-    
+
     // Filter by user ID
     const userTransactions = allTransactions.filter(t => t.user_id === userId);
-    
+
     // Sort by created_at (newest first)
     userTransactions.sort((a, b) => {
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
-    
+
     // Apply limit
     const limitedTransactions = userTransactions.slice(0, limit);
-    
-    console.log(`Found ${limitedTransactions.length} transactions in localStorage for user ${userId}`);
-    
+
     // If we have transactions in localStorage, return them
     if (limitedTransactions.length > 0) {
       return limitedTransactions;
@@ -605,11 +603,32 @@ export const getRecentTransactions = async (userId: string, limit = 5): Promise<
 
       if (!error && data && data.length > 0) {
         console.log('Retrieved transactions from Supabase:', data.length);
-        
-        // Save to localStorage for future use
-        localStorage.setItem('finhive_transactions', JSON.stringify(data));
-        
-        return data;
+
+        // Merge with existing localStorage data instead of overwriting
+        const existingData = localStorage.getItem('finhive_transactions');
+        let mergedData = data;
+
+        if (existingData) {
+          try {
+            const parsedExisting = JSON.parse(existingData);
+            // Create a map of existing transactions by ID to avoid duplicates
+            const existingMap = new Map(parsedExisting.map((t: any) => [t.id, t]));
+
+            // Add Supabase data to the map (will overwrite if same ID)
+            data.forEach((t: any) => existingMap.set(t.id, t));
+
+            // Convert back to array
+            mergedData = Array.from(existingMap.values());
+          } catch (e) {
+            console.error('Error merging localStorage data:', e);
+            mergedData = data;
+          }
+        }
+
+        // Save merged data to localStorage
+        localStorage.setItem('finhive_transactions', JSON.stringify(mergedData));
+
+        return data; // Return only Supabase data for this call
       }
     } catch (supabaseError) {
       console.log('Supabase error (ignored):', supabaseError);
@@ -887,6 +906,7 @@ export const getContacts = async (userId: string): Promise<Contact[]> => {
   if (error) throw error;
   return data || [];
 };
+
 
 // BUDGETING FUNCTIONS
 

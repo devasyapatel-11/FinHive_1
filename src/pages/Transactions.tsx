@@ -80,18 +80,16 @@ const Transactions = () => {
 
   const loadTransactions = async () => {
     if (!user) return;
-    
+
     try {
       setLoading(true);
       console.log('Loading transactions for user:', user.id);
-      
-      // Add a small delay to ensure the database has time to update
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      console.log('User object:', user);
+
       // Get transactions with a larger limit to ensure we get all
       const data = await getRecentTransactions(user.id, 50);
       console.log('Loaded transactions:', data);
-      
+
       if (data && Array.isArray(data)) {
         setTransactions(data);
       } else {
@@ -105,6 +103,7 @@ const Transactions = () => {
       setLoading(false);
     }
   };
+
   
   // Load transactions when component mounts or user changes
   React.useEffect(() => {
@@ -131,7 +130,7 @@ const Transactions = () => {
       <div className="bg-white p-6 rounded-lg border border-finhive-border">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-lg font-medium">Recent Transactions</h2>
-          <button 
+          <button
             onClick={() => setIsModalOpen(true)}
             className="px-4 py-2 bg-finhive-primary text-white rounded-md text-sm flex items-center gap-2"
           >
