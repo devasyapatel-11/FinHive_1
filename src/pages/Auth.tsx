@@ -81,12 +81,12 @@ const Auth = () => {
         navigate('/dashboard');
       }
     } catch (error: any) {
-      // Use toast with destructive variant for errors (auto-dismiss after 7 seconds)
+      // Use toast with destructive variant for errors (auto-dismiss after 5 seconds)
       toast({
         title: "Error",
         description: error.message || "An error occurred",
         variant: "destructive",
-        duration: 7000
+        duration: 5000
       });
     }
   };
